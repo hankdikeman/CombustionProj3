@@ -11,7 +11,7 @@ if __name__ == "__main__":
     # describe composition of mixture
     inittemp, initpress = (300,1)
     # calculate composition based on percentage of propane
-    HC_comp = 0.092
+    HC_comp = 0.05
     O_comp = (1 - HC_comp) * 0.21
     N2_comp = (1 - HC_comp) * 0.79
     q = {'C3H8': HC_comp, 'O2': O_comp, 'N2': N2_comp}
@@ -37,7 +37,7 @@ if __name__ == "__main__":
     print(f'    PostShock Temperature: {postshockgas.T} K')
 
     # Resolution: The PFR will be simulated by 'n_steps' time steps
-    n_steps = 300000
+    n_steps = 3000000
     
     # create a new reactor
     r1 = ct.IdealGasConstPressureReactor(postshockgas)

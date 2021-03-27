@@ -32,6 +32,7 @@ from sdtoolbox.postshock import PostShock_eq
 from sdtoolbox.thermo import soundspeed_eq, soundspeed_fr
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy.interpolate import interp1d
 
 if __name__ == "__main__":
     inittemp = np.array([300, 300, 600])
@@ -39,7 +40,7 @@ if __name__ == "__main__":
     compositions = np.linspace(2.2, 9.2, 30)
     # make arrays to hold detonations characteristics
     property_array = np.zeros_like(compositions)
-    detionation_speed = np.stack(
+    d_calc = np.stack(
         (property_array, property_array, property_array))
     detonation_speed = np.stack(
         (property_array, property_array, property_array))
@@ -111,11 +112,29 @@ if __name__ == "__main__":
             print('   Mach Number %.3f ' % mach)
             print(f'   Density 1:{rho_1}, Density 2:{rho_2}')
 
+            d_calc[IC, idx] = Dcalc
             product_temp[IC, idx] = gas.T
             detonation_speed[IC, idx] = D
             product_press[IC, idx] = gas.P
             detonation_mach[IC, idx] = mach
             product_specificheat[IC, idx] = gammaf
+
+    print('Product temp',product_temp)
+    f1 = interp1d(product_temp[0,:], compositions)
+    f2 = interp1d(product_temp[1,:], compositions)
+    f3 = interp1d(product_temp[2,:], compositions)
+    case1comp = f1(2700) # np.interp(2700,product_temp[0,:],compositions)
+    case2comp = f2(2700) # np.interp(2700,product_temp[1,:],compositions)
+    case3comp = f3(2700) # np.interp(2700,product_temp[2,:],compositions)
+    print(f'\n\ncase 1 2700 K composition:{case1comp}% propane')
+    print(f'case 1 2700 K det speed:{np.interp(case1comp,compositions[:],detonation_speed[0,:])} m/s')
+    print(f'\ncase 2 2700 K composition:{case2comp}% propane')
+    print(f'case 2 2700 K det speed:{np.interp(case2comp,compositions[:],detonation_speed[1,:])} m/s')
+    print(f'\ncase 3 2700 K composition:{case3comp}% propane')
+    print(f'case 3 2700 K det speed:{np.interp(case3comp,compositions[:],detonation_speed[2,:])} m/s')
+
+    print(f'Calculated detonation speed for T = 2700 K: {d_calc[0,0]}')
+
 
     plt.plot(compositions, detonation_speed[0, :], 'r-', label='T$_0$=300 K, P$_0$=100 kPa')
     plt.plot(compositions, detonation_speed[1, :], 'g-', label='T$_0$=300 K, P$_0$=500 kPa')
@@ -123,7 +142,7 @@ if __name__ == "__main__":
     plt.legend()
     plt.xlabel('C$_3$H$_8$ Initial Composition (%)')
     plt.ylabel('Detonation Speed (m/s)')
-    plt.title('C3H8-Air Detonation Speed')
+    plt.title('C$_3$H$_8$-Air Detonation Speed')
     figname = 'Figures/DetSpeed.png'
     plt.savefig(figname)
     plt.show()
@@ -134,7 +153,7 @@ if __name__ == "__main__":
     plt.legend()
     plt.xlabel('C$_3$H$_8$ Initial Composition (%)')
     plt.ylabel('Product Temperature (K)')
-    plt.title('C3H8-Air Detonation Product T')
+    plt.title('C$_3$H$_8$-Air Detonation Product T')
     figname = 'Figures/DetTemp.png'
     plt.savefig(figname)
     plt.show()
@@ -145,7 +164,7 @@ if __name__ == "__main__":
     plt.legend()
     plt.xlabel('C$_3$H$_8$ Initial Composition (%)')
     plt.ylabel('Product Pressure (atm)')
-    plt.title('C3H8-Air Detonation Product P')
+    plt.title('C$_3$H$_8$-Air Detonation Product P')
     figname = 'Figures/DetPress.png'
     plt.savefig(figname)
     plt.show()
@@ -156,7 +175,7 @@ if __name__ == "__main__":
     plt.legend()
     plt.xlabel('C$_3$H$_8$ Initial Composition (%)')
     plt.ylabel('Detonation Mach Number (unitless)')
-    plt.title('C3H8-Air Detonation Mach Number')
+    plt.title('C$_3$H$_8$-Air Detonation Mach Number')
     figname = 'Figures/DetMach.png'
     plt.savefig(figname)
     plt.show()
@@ -167,7 +186,7 @@ if __name__ == "__main__":
     plt.legend()
     plt.xlabel('C$_3$H$_8$ Initial Composition (%)')
     plt.ylabel('Specific Heat Ratio (unitless)')
-    plt.title('C3H8-Air Specific Heat Ratio ($\gamma$)')
+    plt.title('C$_3$H$_8$-Air Specific Heat Ratio ($\gamma$)')
     figname = 'Figures/DetSpecHeat.png'
     plt.savefig(figname)
     plt.show()
